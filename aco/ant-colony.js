@@ -1,13 +1,11 @@
 'use strict';
 
-// const random = require('../lib/random');
-
 const random = (min, max) => {
     return Math.floor(Math.random() * (max - min)) + min;
 };
 
 class AntColony {
-    constructor(number, limit, q, rho, epsilon, distance) {
+    constructor(number, limit, q, rho, epsilon, distance, P, capacity) {
         this._number = number;
         this._limit = limit;
         this._q = q;
@@ -17,6 +15,8 @@ class AntColony {
         this._step = distance[0].length - 1;
         this._pheromone = this._initPheromone(distance);
         this._mstep = this._initMStep(number, this._step);
+        this._P = P;
+        this._capacity = capacity;
     }
 
     solve() {
@@ -29,11 +29,42 @@ class AntColony {
     result() {
         this._walk(0);
         this._update();
-        return {
-            minRoute: this._mstep[0],
-            averageDistance: this._average
-        }
+        // return {
+        //     minRoute: this._mstep[0],
+        //     averageDistance: this._average
+        // }
+        this._finalPath(this._mstep[0]);
     }
+
+    _finalPath(route){
+        let capacity = this._capacity;
+        let P = this._P;
+        let finalPath = [0];
+        let A = this._distance;
+
+        let sum = 0;
+        let path = [0];
+        sum += A[0][route[0]];
+
+        for(let i = 0; i < route.length; i++){
+            capacity -= P[route[i]];
+            if(capacity >= P[route[i+1]]){
+                path.push(route[i]);
+                sum += A[route[i]][route[i+1]];
+            }
+            else{
+                path.push(route[i]);
+                path.push(0);
+                sum += A[route[i]][0];
+                if(i !== route.length - 1) {
+                    sum += A[0][route[i + 1]];
+                }
+                capacity = 50;
+            }
+        }
+        console.log("The best found way: ", path.join('-'));
+        console.log("The value of the way: ", sum);
+    };
 
     _walk(epsilon) {
         for (let m = 0; m < this._number; m++) {
@@ -80,7 +111,7 @@ class AntColony {
         }
 
         // console.log('Average distance: ' + sum / NOA);
-        this._average = sum / this._number;
+        this._average = sum;
     }
 
     _initPheromone(distance) {
