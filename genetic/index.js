@@ -142,7 +142,7 @@ const main = () => {
     const bestPath = finalPath(population[0].path);
     console.log("\n----------Genetic Algorithm----------\n");
     console.log("The best found way: ", bestPath);
-    console.log("The value of way: ", population[0].val);
+    console.log("The value of the way: ", population[0].val);
     console.log("\n-------------------------------------\n");
 };
 
